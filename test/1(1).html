@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport"
+		content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    
+	<title></title>
+	<style>
+		body,
+		html {
+			width: 100%;
+			height: 100%;
+			background: #f2f2f2;
+			padding: 0;
+			margin: 0;
+			font-size: 1em;
+		}
+
+		.button {
+			width: 80%;
+			background: green;
+			color: #fff;
+			text-align: center;
+			margin: auto;
+			border-radius: 4px;
+			position: relative;
+			top: 260px;
+		}
+
+		.btn1 {
+
+			padding: 10px;
+		}
+
+		#btn2 {
+			margin-top: 1.25em;
+			padding: 10px;
+		}
+
+		.upload-img {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			left: 0;
+			opacity: 0;
+		}
+
+		#previewImg {
+			display: block;
+			width: 8em;
+			height: 8em;
+			position: absolute;
+			border: none;
+			top: 0;
+		}
+
+		.ima {
+			width: 8em;
+			height: 8em;
+			margin: auto;
+			position: relative;
+			top: 150px;
+		}
+
+		/*边框*/
+
+		.imga1 {
+			width:2em;
+			height: 2em;
+			margin: auto;
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			background-size: cover;
+			
+			/* Safari 5 */
+			/* Opera */
+		}
+
+		#bg {
+			display: none;
+			background: rgb(191, 26, 43);
+			width: 100%;
+			height: 8em;
+			position: absolute;
+			top: 0px;
+			background-size: 100% 100%;
+		}
+
+		.select {
+			height: 5em;
+			width: 20%;
+			float: left;
+			outline: 1px solid black;
+			margin-top: 1em;
+		}
+
+		.select img {
+			display: block;
+			height: 5em;
+			width: 100%;
+		}
+	</style>
+</head>
+
+<body style=" background: url(img/01.jpeg) no-repeat;background-size: 100% 100%;background-attachment: fixed;">
+
+	<section>
+
+		<div class="ima">
+			<img id="previewImg" src="./img/timg.jpg"alt="预览" />
+			<div class="imga1"></div>
+		</div>
+
+		<div class="button btn1" role="button">
+			选择相册图片 <input type="file" name="file" class="upload-img" accept="image/*" onchange="chooseImg(this)" />
+		</div>
+		<div class="button" id="btn2">
+			选择头像框
+		</div>
+	</section>
+	<div id="bg">
+		<div class="select">
+			<img src="./img/1.png" alt="">
+		</div>
+		<div class="select">
+			<img src="./img/2.png" alt="">
+		</div>
+		<div class="select">
+			<img src="./img/3.png" alt="">
+		</div>
+		<div class="select">
+			<img src="./img/4.png" alt="">
+		</div>
+		<div class="select">
+			<img src="./img/5.png" alt="">
+		</div>
+	</div>
+	<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="./js/html2canvas.js"></script>
+	<script src="https://unpkg.com/clipic/dist/clipic.min.js"></script>
+	<script>
+		var clipic = new Clipic()
+        var oldSrc;
+		function chooseImg(event) {
+			$(".imga1").css("background-image", "")
+			$(`<img id="previewImg" />`).appendTo($(".ima"))
+
+			var files = event.files || event.dataTransfer.files
+			var reader = new FileReader()
+			reader.readAsDataURL(files[0])
+			reader.onload = e => {
+				clipic.getImage({
+					// width: 500,
+					// height: 400,
+					ratio: 6 / 6,
+					src: e.target.result,
+					// buttonText: ['Cancel', 'Reset', 'Done'],
+					name: 'test',
+					encode: 'base64', // 支持 base64、blob、file
+					type: 'png',
+					// quality: '0.9', // 导出图片的质量
+					onDone: function (e) {
+						document.getElementById('previewImg').src = e
+						oldSrc=e
+					},
+					onCancel: function () {
+						console.log('取消裁剪')
+					}
+				})
+			}
+			event.value = ''
+		}
+        var isShow=false;
+		var arr = ["./img/1.png", "./img/2.png","./img/3.png", "./img/4.png","./img/5.png"]
+		$("#btn2").click(function () {
+			if(isShow){
+				$(".ima").html("")
+				$(`
+				<img id="previewImg" src="${oldSrc}" alt="预览" />
+			<div class="imga1" style="background-image:url()" ></div>
+				`).appendTo($(".ima"))
+			}
+			if($("#previewImg")[0].src=="./img/timg.jpg"){
+                alert("请选择头像")
+			}else{
+				$("#bg").show(500);
+				isShow=true;
+			}	
+			
+			
+		})
+
+		var index;
+		$(".select").click(function () {
+			 index = $(this).index();
+			$(".imga1").css("background-image", "url(" + arr[index] + ")")
+
+			//这是要转成图片的div id
+			var element = $(".ima");
+			html2canvas(element, {
+				onrendered: function (canvas) {
+					$(".ima").html("")
+					$(".ima").append(canvas);
+					//获取网页中的canvas对象  
+					var mycans = $('canvas')[0];
+					//调用convertCanvasToImage函数将canvas转化为img形式   
+					var img = convertCanvasToImage(mycans);
+					//将img插入容器 
+					$(".ima").html(img);
+				}
+			});
+
+			//从 canvas 提取图片 image  
+			function convertCanvasToImage(canvas) {
+				//新Image对象，可以理解为DOM  
+				var image = new Image();
+				// canvas.toDataURL 返回的是一串Base64编码的URL
+				// 指定格式 PNG  
+				image.src = canvas.toDataURL("image/png", 1);
+				return image;
+			}
+			$("#bg").hide(500)
+		})
+
+
+
+
+		/*
+			
+			$(document).ready(function () {
+		//这是要转成图片的div id
+		var element = $("#container");
+		var getCanvas;
+		//这是预览按钮的id
+		html2canvas(element, {
+			onrendered: function (canvas) {
+				//这是显示预览图的id
+				$("#container").html("")
+				$("#container").append(canvas);
+				//获取网页中的canvas对象  
+				var mycans = $('canvas')[0];
+				console.log(mycans)
+				//调用convertCanvasToImage函数将canvas转化为img形式   
+				var img = convertCanvasToImage(mycans);
+				//将img插入容器 
+				$("#container").html(img);
+			}
+		});
+
+		//从 canvas 提取图片 image  
+		function convertCanvasToImage(canvas) {
+			//新Image对象，可以理解为DOM  
+			var image = new Image();
+			// canvas.toDataURL 返回的是一串Base64编码的URL
+			// 指定格式 PNG  
+			image.src = canvas.toDataURL("image/png",1);
+			return image;
+		}
+	});
+			
+			
+			*/
+	</script>
+</body>
+
+</html>

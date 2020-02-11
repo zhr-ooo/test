@@ -1,0 +1,42 @@
+<html>
+<head>
+    <meta name="layout" content="main">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.js"></script>
+    <script src="https://cdn.bootcss.com/FileSaver.js/2014-11-29/FileSaver.js"></script>
+</head>
+<body>
+<div style="background-color: #93ccb6;">
+    测试html5页面截图的生成界面如下:
+</div>
+<textArea id="textArea"></textArea>
+<input class="example1" type="button" value="button">
+
+</body>
+<script>
+    $(".example1").on("click", function (event) {
+        event.preventDefault();
+        html2canvas(document.body, {
+            allowTaint: true,
+            taintTest: false,
+            onrendered: function (canvas) {
+                /**
+                 * 保存到本地，用FileSaver这个插件
+                 */
+                canvas.toBlob(function (blob) {
+                    saveAs(blob, "saveImage.png");
+                });
+                /**
+                 * 生成base64图片数据
+                 * @type {string}
+                 */
+                var dataUrl = canvas.toDataURL();
+                var newImg = document.createElement("img");
+                newImg.src = dataUrl;
+                document.body.appendChild(newImg);
+            }
+        });
+    });
+</script>
+</html>
